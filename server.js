@@ -1,11 +1,14 @@
 const express = require('express');
 const WebSocket = require('ws');
 const osc = require('osc');
-const http = require('http');
+const https = require('https');
 const chokidar = require('chokidar');
 const fs = require("fs");
 const app = express();
-const server = http.createServer(app);
+const server = https.createServer({
+    key: fs.readFileSync('certificates/server.key'),
+    cert: fs.readFileSync('certificates/server.cert')
+},app);
 const wss = new WebSocket.Server({ server });
 
 // use the public directory to serve static files
@@ -32,12 +35,12 @@ watcher.on('change', () => {
     });
 });
 
-
+let oscOutPort = process.env.OSC_OUT_PORT || 57120;
 const udpPort = new osc.UDPPort({
     localAddress: "0.0.0.0",
     localPort: 57121,
     remoteAddress: "127.0.0.1",
-    remotePort: 57120,
+    remotePort: oscOutPort,
 });
 
 udpPort.open();
@@ -54,5 +57,6 @@ wss.on('connection', function connection(ws) {
     });
 });
 
+console.log(`sending osc messages on port ${oscOutPort}`)
 const port = process.env.PORT || 3000;
 server.listen(port, () => console.log(`Server started on http://localhost:${port}`));

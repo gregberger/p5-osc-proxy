@@ -11,7 +11,8 @@
   "pkg": {
     "assets": [
       "./templates/**/*",
-      "./lib/**/*"
+      "./lib/**/*",
+      "./certificates/*"
     ]
   },
   "keywords": [
